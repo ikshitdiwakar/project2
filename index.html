@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>House of Games</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      background: #050510;
+      position: relative;
+    }
+
+    /* 🔥 Full Animated Gradient Background */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #ff004c, #00d9ff, #7a00ff, #ffc400);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      z-index: -4;
+      filter: blur(70px);
+      opacity: 0.9;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ⚡ Digital Grid Overlay */
+    body::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 8s linear infinite;
+      z-index: -3;
+      opacity: 0.4;
+    }
+
+    @keyframes gridMove {
+      from { transform: translateY(0px); }
+      to { transform: translateY(60px); }
+    }
+
+    /* 🌟 Light Streak Effect */
+    .streak {
+      position: absolute;
+      width: 250px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+      animation: streakMove 4s infinite linear;
+      opacity: 0.6;
+      z-index: -2;
+    }
+
+    @keyframes streakMove {
+      from { transform: translateX(-400px) translateY(0px); }
+      to { transform: translateX(150vw) translateY(0px); }
+    }
+
+    .streak:nth-child(1) { top: 15%; animation-delay: 0s; }
+    .streak:nth-child(2) { top: 35%; animation-delay: 1s; }
+    .streak:nth-child(3) { top: 55%; animation-delay: 2s; }
+    .streak:nth-child(4) { top: 75%; animation-delay: 3s; }
+
+    /* ⭐ Particles */
+    .particles span {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      animation: floatParticles 8s infinite linear;
+    }
+
+    @keyframes floatParticles {
+      0% {
+        transform: translateY(110vh) scale(0.3);
+        opacity: 0;
+      }
+      30% { opacity: 1; }
+      100% {
+        transform: translateY(-10vh) scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    /* 🏆 Header Section */
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 35px;
+      margin-bottom: 15px;
+      animation: fadeSlide 1.5s ease;
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(-40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0px);
+      }
+    }
+
+    /* 🖼️ BIG Logos */
+    .logo {
+      height: 230px;
+      width: 320px;
+      border-radius: 50%;
+      animation: floatLogo 2.8s infinite ease-in-out;
+      filter: drop-shadow(0px 0px 25px rgba(255,255,255,0.8));
+      position: relative;
+    }
+
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-18px); }
+    }
+
+    /* 🔥 Title */
+    h1 {
+      font-size: clamp(3rem, 8vw, 5rem);
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, #ff004c, #00d9ff, #ffc400);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glowText 2s infinite alternate;
+    }
+
+    @keyframes glowText {
+      from { text-shadow: 0px 0px 10px rgba(255,255,255,0.2); }
+      to { text-shadow: 0px 0px 30px rgba(255,255,255,0.9); }
+    }
+
+    /* 🎮 Subtitle */
+    .subtitle {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  margin-bottom: 60px;
+  text-transform: uppercase;
+
+  /* Vibrant neon gradient */
+  background: linear-gradient(
+    90deg,
+    #00f5ff,
+    #00ff85,
+    #ffe600,
+    #ff2bd6,
+    #7a00ff,
+    #00f5ff
+  );
+  background-size: 500% 500%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* Strong visibility glow */
+  text-shadow:
+    0px 0px 10px rgba(0,0,0,0.95),
+    0px 0px 20px rgba(0,245,255,0.9),
+    0px 0px 40px rgba(255,46,214,0.85),
+    0px 0px 70px rgba(122,0,255,0.9);
+
+  animation: subtitleGradient 3s linear infinite,
+             subtitleFloat 2.5s ease-in-out infinite,
+             subtitlePulse 2s ease-in-out infinite;
+}
+
+/* Gradient motion */
+@keyframes subtitleGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating motion */
+@keyframes subtitleFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Pulse glow */
+@keyframes subtitlePulse {
+  0%, 100% { filter: brightness(2); }
+  30% { filter: brightness(4); }
+}
+
+
+
+    /* 🎮 Game Grid */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      width: 100%;
+      max-width: 1000px;
+      animation: fadeSlideUp 1.5s ease;
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0px); }
+    }
+
+    /* 🔥 Game Buttons */
+    .game-btn {
+      position: relative;
+      padding: 20px 25px;
+      border-radius: 22px;
+      text-decoration: none;
+      color: white;
+      font-size: 1.3rem;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(12px);
+      transition: 0.35s ease;
+      overflow: hidden;
+      box-shadow: 0px 10px 30px rgba(0,0,0,0.45);
+    }
+
+    /* ⚡ Neon Border Animation */
+    .game-btn::before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      background: linear-gradient(90deg, #ff004c, #00d9ff, #7a00ff, #ffc400);
+      background-size: 300% 300%;
+      z-index: -1;
+      border-radius: 22px;
+      animation: borderGlow 3s linear infinite;
+      opacity: 0;
+      transition: 0.4s ease;
+    }
+
+    @keyframes borderGlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ⭐ Shine Effect */
+    .game-btn::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+      transform: skewX(-25deg);
+      transition: 0.6s;
+    }
+
+    .game-btn:hover::after {
+      left: 120%;
+    }
+
+    .game-btn:hover {
+      transform: translateY(-12px) scale(1.06);
+      box-shadow: 0px 0px 45px rgba(0,255,255,0.7);
+      background: rgba(255,255,255,0.18);
+    }
+
+    .game-btn:hover::before {
+      opacity: 1;
+    }
+
+    .game-icon {
+      font-size: 2.2rem;
+      filter: drop-shadow(0px 0px 10px rgba(255,255,255,0.7));
+    }
+
+    footer {
+      margin-top: 60px;
+      font-size: 1rem;
+      opacity: 0.85;
+      letter-spacing: 1px;
+      text-shadow: 0px 0px 12px rgba(255,255,255,0.25);
+    }
+
+    footer a {
+      color: #ffd700;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    footer a:hover {
+      color: cyan;
+      text-shadow: 0px 0px 15px cyan;
+    }
+    .ludo-center {
+  grid-column: 1 / -1;   /* takes full row */
+  justify-self: center;  /* centers the button */
+  width: 400px;          /* fixed width so it looks centered */
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ⚡ Light Streaks -->
+  <div class="streak"></div>
+  <div class="streak"></div>
+  <div class="streak"></div>
+  <div class="streak"></div>
+
+  <!-- ⭐ Floating Particles -->
+  <div class="particles">
+    <span style="left:10%; animation-delay:0s;"></span>
+    <span style="left:20%; animation-delay:2s;"></span>
+    <span style="left:35%; animation-delay:4s;"></span>
+    <span style="left:50%; animation-delay:1s;"></span>
+    <span style="left:65%; animation-delay:3s;"></span>
+    <span style="left:80%; animation-delay:5s;"></span>
+    <span style="left:90%; animation-delay:6s;"></span>
+    <span style="left:95%; animation-delay:7s;"></span>
+  </div>
+
+  <!-- 🏆 Header -->
+  <div class="header">
+    <img src="01.png" class="logo" alt="Logo">
+    <h1>House of Games</h1>
+    <img src="01.png" class="logo" alt="Logo">
+  </div>
+
+  <p class="subtitle">⚡ Digital Board Games Collection ⚡</p>
+
+  <!-- 🎮 Game Menu -->
+  <div class="games-grid">
+    <a href="bingo.html" class="game-btn">
+      <span class="game-icon">🎯</span> Tambola (Bingo)
+    </a>
+
+    <a href="snakeandladder.html" class="game-btn">
+      <span class="game-icon">🐍🎲</span> Snake & Ladder
+    </a>
+
+    <a href="Gekitai.html" class="game-btn">
+      <span class="game-icon">⚡</span> Gekitai
+    </a>
+
+    <a href="Ludo.html" class="game-btn ludo-center">
+  <span class="game-icon">🟢🔴🟡🔵🎲</span> Ludo
+</a>
+
+  </div>
+
+  <footer>
+    Made with ❤️ by
+    <a href="https://github.com/ikshitdiwakar/project1" target="_blank">@Ikshit-Diwakar</a>
+  </footer>
+
+</body>
+</html>
+

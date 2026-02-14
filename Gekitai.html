@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gekitai Board Game</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    /* -------------------- Animated Cyberpunk Background -------------------- */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  font-family: "Segoe UI", sans-serif;
+  color: white;
+  background: linear-gradient(270deg, #0f0c29, #302b63, #24243e);
+  background-size: 600% 600%;
+  animation: gradientShift 20s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating neon particles */
+body::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: particleShift 60s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes particleShift {
+  0% { background-position: 0 0; }
+  100% { background-position: 200px 200px; }
+}
+
+/* -------------------- Animated Glitchy Title -------------------- */
+.animated-title {
+  position: absolute;
+  /* top: 1px; */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #0ff;
+  text-shadow:
+    0 0 5px #0ff,
+    0 0 10px #0ff,
+    0 0 20px #0ff,
+    0 0 40px #0ff,
+    0 0 80px #0ff;
+  animation: titleGlitch 2s infinite;
+  z-index: 5;
+}
+
+@keyframes titleGlitch {
+  0% { text-shadow: 0 0 5px #0ff, 0 0 10px #0ff; transform: translateX(-50%) translateY(0); }
+  20% { text-shadow: 0 0 10px #f0f, 0 0 15px #0ff; transform: translateX(-50%) translateY(-2px); }
+  40% { text-shadow: 0 0 5px #ff0, 0 0 20px #0ff; transform: translateX(-50%) translateY(1px); }
+  60% { text-shadow: 0 0 10px #0ff, 0 0 15px #f0f; transform: translateX(-50%) translateY(-1px); }
+  80% { text-shadow: 0 0 5px #f0f, 0 0 10px #0ff; transform: translateX(-50%) translateY(2px); }
+  100% { text-shadow: 0 0 5px #0ff, 0 0 10px #0ff; transform: translateX(-50%) translateY(0); }
+}
+
+/* Optional: subtle board glow to match cyberpunk vibe */
+.board-container {
+  box-shadow: 0 0 40px rgba(0,255,255,0.2), 0 0 60px rgba(255,0,255,0.1);
+  transition: 0.3s;
+}
+
+
+    /* Navbar */
+    .navbar {
+      width: 100%;
+      padding: 18px 25px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(15px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0px 6px 25px rgba(0,0,0,0.4);
+    }
+
+    .navbar h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #f8fafc;
+      letter-spacing: 2px;
+    }
+
+    .navbar button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: black;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0px 0px 15px rgba(56,189,248,0.35);
+    }
+
+    .navbar button:hover {
+      transform: scale(1.05);
+    }
+
+    /* Layout */
+    .game-layout {
+      margin-top: 30px;
+      width: 95%;
+      max-width: 1100px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* Board Container */
+    .board-container {
+      padding: 22px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0px 0px 35px rgba(0,0,0,0.6);
+      position: relative;
+    }
+
+    .board-container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 22px;
+      background: url("https://www.transparenttextures.com/patterns/wood-pattern.png");
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(6, 70px);
+      grid-template-rows: repeat(6, 70px);
+      gap: 10px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .cell {
+      width: 70px;
+      height: 70px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: 0.15s;
+      position: relative;
+      box-shadow: inset 0px 0px 15px rgba(0,0,0,0.6);
+    }
+
+    .cell:hover {
+      background: rgba(255, 255, 255, 0.22);
+      transform: scale(1.05);
+    }
+
+    .cell.selected {
+      outline: 3px solid #facc15;
+      transform: scale(1.08);
+      box-shadow: 0px 0px 20px rgba(250,204,21,0.6);
+    }
+
+    .cell.blocked {
+      background: rgba(220, 38, 38, 0.3);
+      cursor: not-allowed;
+      border: 2px solid rgba(255, 80, 80, 0.6);
+    }
+
+    .cell.blocked::after {
+      content: "⛰";
+      font-size: 28px;
+      position: absolute;
+    }
+
+    .cell.trap {
+      background: rgba(168, 85, 247, 0.2);
+      border: 2px solid rgba(168, 85, 247, 0.6);
+    }
+
+    .cell.trap::after {
+      content: "⚡";
+      font-size: 22px;
+      position: absolute;
+      opacity: 0.9;
+    }
+
+    .piece {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      animation: pop 0.2s ease-in-out;
+      z-index: 10;
+    }
+
+    .player1 {
+      background: radial-gradient(circle, #ffffff, #9ca3af);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      box-shadow: inset 0px 0px 10px rgba(0,0,0,0.4);
+    }
+
+    .player2 {
+      background: radial-gradient(circle, #111827, #000000);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      box-shadow: inset 0px 0px 10px rgba(255,255,255,0.15);
+    }
+
+    .frozen {
+      outline: 3px solid #a855f7;
+      box-shadow: 0px 0px 15px rgba(168, 85, 247, 0.8);
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Dashboard */
+    .dashboard {
+      width: 360px;
+      padding: 18px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0px 0px 35px rgba(0,0,0,0.55);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .dashboard h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 1px;
+    }
+
+    .status-box {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 14px;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 14px;
+      color: #e2e8f0;
+    }
+
+    .stat-row b {
+      color: #f8fafc;
+    }
+
+    .timer-box {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.12);
+      text-align: center;
+    }
+
+    .timer-box h3 {
+      font-size: 14px;
+      color: #f8fafc;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+
+    #timerText {
+      font-size: 26px;
+      font-weight: 900;
+      color: #facc15;
+      letter-spacing: 1px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .buttons button {
+      flex: 1;
+      padding: 12px 10px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 900;
+      transition: 0.2s;
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: black;
+    }
+
+    .restart-btn {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: black;
+    }
+
+    .mode-btn {
+      background: linear-gradient(135deg, #facc15, #eab308);
+      color: black;
+    }
+
+    .ai-btn {
+      background: linear-gradient(135deg, #a855f7, #7c3aed);
+      color: white;
+    }
+
+    .buttons button:hover {
+      transform: scale(1.05);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .modal-content {
+      max-width: 750px;
+      width: 100%;
+      background: #0f172a;
+      border-radius: 18px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: pop 0.2s ease-in-out;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 12px;
+      font-size: 22px;
+      color: #38bdf8;
+    }
+
+    .modal-content p {
+      margin-bottom: 10px;
+      font-size: 15px;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+
+    .close-btn {
+      margin-top: 15px;
+      padding: 10px 16px;
+      background: crimson;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      color: white;
+      transition: 0.2s;
+    }
+
+    .close-btn:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 700px) {
+      .board {
+        grid-template-columns: repeat(6, 55px);
+        grid-template-rows: repeat(6, 55px);
+        gap: 8px;
+      }
+
+      .cell {
+        width: 55px;
+        height: 55px;
+      }
+
+      .piece {
+        width: 42px;
+        height: 42px;
+      }
+
+      .dashboard {
+        width: 95%;
+      }
+    }
+    .settings-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#settingsIcon {
+  font-size: 22px;
+  transition: transform 0.2s;
+}
+
+.settings-container:hover #settingsIcon {
+  transform: rotate(20deg);
+}
+
+.settings-panel {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  width: 200px;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 15px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 50;
+  color: black;
+  font-size: 14px;
+}
+
+.settings-panel h3 {
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #38bdf8;
+}
+
+.settings-panel label {
+  margin-top: 5px;
+  display: block;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.settings-panel select {
+  width: 100%;
+  padding: 6px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(46, 2, 2, 0.11);
+  color: purple;
+  font-weight: 600;
+  cursor: pointer;
+}
+#rulesBtn{
+    width: 10%;
+    height: 5%;
+    font-size: x-large;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <div class="navbar">
+    <!-- Replace Navbar h1 with centered animated title -->
+    <div class="animated-title">GEKITAI</div>
+    <button id="rulesBtn">Rules</button>
+    <div class="settings-container">
+    <span id="settingsIcon">⚙️</span>
+    <div class="settings-panel" id="settingsPanel">
+      <h3>Settings</h3>
+      <label>Background Style:</label>
+      <select id="bgStyle">
+        <option value="gradient1">Dark Blue-Purple</option>
+        <option value="gradient2">Black-Violet</option>
+        <option value="gradient3">Deep Black-Purple</option>
+      </select>
+
+      <label>Animation Speed:</label>
+      <select id="bgSpeed">
+        <option value="slow">Slow</option>
+        <option value="normal" selected>Normal</option>
+        <option value="fast">Fast</option>
+      </select>
+
+      <label>Title Animation:</label>
+      <select id="titleAnim">
+        <option value="glitch" selected>Glitch</option>
+        <option value="pulse">Pulse</option>
+        <option value="wave">Wave</option>
+      </select>
+
+      <label>Title Color:</label>
+      <select id="titleColor">
+        <option value="#0ff" selected>Cyan</option>
+        <option value="#f0f">Magenta</option>
+        <option value="#22c55e">Neon Green</option>
+        <option value="#facc15">Yellow</option>
+      </select>
+    </div>
+  </div>
+  </div>
+
+  <div class="game-layout">
+
+    <div class="board-container">
+      <div class="board" id="board"></div>
+    </div>
+
+    <div class="dashboard">
+      <h2>🎮 Game Dashboard</h2>
+
+      <div class="status-box">
+        <b>Status:</b> <span id="statusText">Click START to begin</span>
+      </div>
+
+      <div class="stat-row">
+        <span><b>Turn:</b></span>
+        <span id="turnText">-</span>
+      </div>
+
+      <div class="stat-row">
+        <span><b>Phase:</b></span>
+        <span id="phaseText">-</span>
+      </div>
+
+      <div class="stat-row">
+        <span><b>Mode:</b></span>
+        <span id="modeText">Classic</span>
+      </div>
+
+      <div class="stat-row">
+        <span><b>Pieces:</b></span>
+        <span>⚪ <span id="p1Count">8</span> | ⚫ <span id="p2Count">8</span></span>
+      </div>
+
+      <div class="timer-box">
+        <h3>⏳ Timer (5 Minutes)</h3>
+        <div id="timerText">05:00</div>
+      </div>
+
+      <div class="buttons">
+        <button class="start-btn" id="startBtn">START</button>
+        <button class="restart-btn" id="restartBtn">RESTART</button>
+      </div>
+
+      <div class="buttons">
+        <button class="mode-btn" id="modeBtn">CHALLENGE</button>
+        <button class="ai-btn" id="aiBtn">VS AI</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="modal" id="rulesModal">
+    <div class="modal-content">
+      <h2>📜 Gekitai Rules</h2>
+
+      <p><b>Classic Mode:</b></p>
+      <p>Gekitai is a 2-player strategy game played on a 6×6 board.</p>
+      <p>Each player has <b>8 pieces</b>.</p>
+      <p><b>Phase 1:</b> Players place pieces until all pieces are placed.</p>
+      <p><b>Phase 2:</b> Players move their pieces to empty squares.</p>
+
+      <p><b>Pushing Rule:</b> After placing/moving, adjacent pieces (up/down/left/right) are pushed one square away. Chain pushing is allowed.</p>
+      <p>If a piece is pushed out of the board, it is removed.</p>
+
+      <p><b>Win Conditions:</b></p>
+      <p>✅ Make 4 pieces in a straight line</p>
+      <p>✅ OR push all opponent pieces out</p>
+
+      <hr style="margin: 15px 0; opacity:0.2;">
+
+      <p><b>Challenge Mode (Extra Rules):</b></p>
+      <p>⛰ <b>Blocked Cells:</b> 4 random mountains. Cannot place/move there.</p>
+      <p>⚡ <b>Trap Cells:</b> 2 trap cells freeze the piece for 1 turn.</p>
+      <p>🧊 <b>Frozen Pieces:</b> Cannot be moved for 1 turn (but can still be pushed).</p>
+
+      <hr style="margin: 15px 0; opacity:0.2;">
+
+      <p><b>AI Mode:</b></p>
+      <p>🤖 You can play against computer. AI uses scoring-based decision making.</p>
+
+      <button class="close-btn" id="closeRules">CLOSE</button>
+    </div>
+  </div>
+
+  <script>
+    const boardSize = 6;
+    const maxPieces = 8;
+
+    let board = [];
+    let currentPlayer = 1;
+    let gameStarted = false;
+    let gameOver = false;
+
+    let placedPieces = { 1: 0, 2: 0 };
+    let piecesLeft = { 1: maxPieces, 2: maxPieces };
+
+    let selectedPiece = null;
+
+    // Modes
+    let challengeMode = false;
+    let aiMode = false;
+
+    // Challenge Mode
+    let blockedCells = [];
+    let trapCells = [];
+    let frozenPieces = {};
+
+    // Timer (5 minutes)
+    let timerSeconds = 300;
+    let timerInterval = null;
+
+    const boardElement = document.getElementById("board");
+    const statusText = document.getElementById("statusText");
+    const turnText = document.getElementById("turnText");
+    const phaseText = document.getElementById("phaseText");
+    const modeText = document.getElementById("modeText");
+    const p1Count = document.getElementById("p1Count");
+    const p2Count = document.getElementById("p2Count");
+    const timerText = document.getElementById("timerText");
+
+    function initBoard() {
+      board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
+      boardElement.innerHTML = "";
+
+      for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+          cell.addEventListener("click", handleCellClick);
+          boardElement.appendChild(cell);
+        }
+      }
+
+      generateChallengeCells();
+      renderBoard();
+    }
+
+    function generateChallengeCells() {
+      blockedCells = [];
+      trapCells = [];
+      frozenPieces = {};
+
+      if (!challengeMode) return;
+
+      let allPositions = [];
+      for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+          allPositions.push([r, c]);
+        }
+      }
+
+      allPositions.sort(() => Math.random() - 0.5);
+
+      blockedCells = allPositions.slice(0, 4);
+      trapCells = allPositions.slice(4, 6);
+    }
+
+    function isBlocked(r, c) {
+      return blockedCells.some(pos => pos[0] === r && pos[1] === c);
+    }
+
+    function isTrap(r, c) {
+      return trapCells.some(pos => pos[0] === r && pos[1] === c);
+    }
+
+    function getPhase() {
+      if (placedPieces[1] < maxPieces || placedPieces[2] < maxPieces) {
+        return "Placement Phase";
+      }
+      return "Movement Phase";
+    }
+
+    function updateUI() {
+      p1Count.textContent = piecesLeft[1];
+      p2Count.textContent = piecesLeft[2];
+
+      if (!gameStarted) {
+        turnText.textContent = "-";
+        phaseText.textContent = "-";
+        modeText.textContent = aiMode ? "AI Mode" : (challengeMode ? "Challenge" : "Classic");
+        return;
+      }
+
+      turnText.textContent = currentPlayer === 1 ? "Player 1 (⚪)" : (aiMode ? "Computer (⚫)" : "Player 2 (⚫)");
+      phaseText.textContent = getPhase();
+      modeText.textContent = aiMode ? "AI Mode" : (challengeMode ? "Challenge" : "Classic");
+
+      // Alert when opponent has 1 piece left
+      if (!gameOver) {
+        if (piecesLeft[1] === 1) statusText.textContent = "⚠ Player 1 is in danger! Only 1 piece left.";
+        if (piecesLeft[2] === 1) statusText.textContent = "⚠ Player 2 is in danger! Only 1 piece left.";
+      }
+    }
+
+    function renderBoard() {
+      const cells = document.querySelectorAll(".cell");
+
+      cells.forEach(cell => {
+        cell.innerHTML = "";
+        cell.classList.remove("selected", "blocked", "trap");
+
+        const r = parseInt(cell.dataset.row);
+        const c = parseInt(cell.dataset.col);
+
+        if (challengeMode) {
+          if (isBlocked(r, c)) cell.classList.add("blocked");
+          if (isTrap(r, c)) cell.classList.add("trap");
+        }
+
+        if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
+          cell.classList.add("selected");
+        }
+
+        if (board[r][c] !== 0) {
+          const piece = document.createElement("div");
+          piece.classList.add("piece");
+          piece.classList.add(board[r][c] === 1 ? "player1" : "player2");
+
+          if (frozenPieces[`${r},${c}`] && frozenPieces[`${r},${c}`] > 0) {
+            piece.classList.add("frozen");
+          }
+
+          cell.appendChild(piece);
+        }
+      });
+    }
+
+    function handleCellClick(e) {
+      if (!gameStarted || gameOver) return;
+      if (aiMode && currentPlayer === 2) return;
+
+      const r = parseInt(e.currentTarget.dataset.row);
+      const c = parseInt(e.currentTarget.dataset.col);
+
+      makeMove(r, c);
+    }
+
+    function makeMove(r, c) {
+      if (challengeMode && isBlocked(r, c)) return;
+
+      const phase = getPhase();
+
+      // Placement
+      if (phase === "Placement Phase") {
+        if (board[r][c] !== 0) return;
+
+        board[r][c] = currentPlayer;
+        placedPieces[currentPlayer]++;
+
+        applyPush(r, c);
+
+        if (challengeMode && isTrap(r, c)) frozenPieces[`${r},${c}`] = 1;
+      }
+
+      // Movement
+      else {
+        if (!selectedPiece) {
+          if (board[r][c] === currentPlayer) {
+            if (frozenPieces[`${r},${c}`] && frozenPieces[`${r},${c}`] > 0) {
+              statusText.textContent = "🧊 This piece is frozen for 1 turn!";
+              return;
+            }
+            selectedPiece = { r, c };
+            renderBoard();
+          }
+          return;
+        } else {
+          if (board[r][c] === 0) {
+            board[r][c] = currentPlayer;
+            board[selectedPiece.r][selectedPiece.c] = 0;
+
+            if (frozenPieces[`${selectedPiece.r},${selectedPiece.c}`]) {
+              delete frozenPieces[`${selectedPiece.r},${selectedPiece.c}`];
+            }
+
+            selectedPiece = null;
+
+            applyPush(r, c);
+
+            if (challengeMode && isTrap(r, c)) frozenPieces[`${r},${c}`] = 1;
+          } else {
+            if (board[r][c] === currentPlayer) {
+              selectedPiece = { r, c };
+              renderBoard();
+            }
+            return;
+          }
+        }
+      }
+
+      reduceFreezeTimers();
+      renderBoard();
+
+      if (piecesLeft[opponent(currentPlayer)] <= 0) {
+        statusText.textContent = `🏆 Player ${currentPlayer} WINS! Opponent has no pieces left.`;
+        gameOver = true;
+        stopTimer();
+        return;
+      }
+
+      if (checkWin(currentPlayer)) {
+        statusText.textContent = `🏆 Player ${currentPlayer} WINS! (4 in a row)`;
+        gameOver = true;
+        stopTimer();
+        return;
+      }
+
+      currentPlayer = opponent(currentPlayer);
+      statusText.textContent = "Game Running...";
+      updateUI();
+
+      // AI turn
+      if (aiMode && currentPlayer === 2 && !gameOver) {
+        setTimeout(aiMove, 600);
+      }
+    }
+
+    function reduceFreezeTimers() {
+      for (let key in frozenPieces) {
+        if (frozenPieces[key] > 0) frozenPieces[key]--;
+      }
+    }
+
+    function opponent(player) {
+      return player === 1 ? 2 : 1;
+    }
+
+    function applyPush(r, c) {
+      const directions = [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1]
+      ];
+
+      directions.forEach(([dr, dc]) => {
+        const nr = r + dr;
+        const nc = c + dc;
+
+        if (isInside(nr, nc) && board[nr][nc] !== 0) {
+          pushChain(nr, nc, dr, dc);
+        }
+      });
+    }
+
+    function pushChain(r, c, dr, dc) {
+      const nextR = r + dr;
+      const nextC = c + dc;
+
+      if (!isInside(nextR, nextC)) {
+        let removedPlayer = board[r][c];
+        board[r][c] = 0;
+        piecesLeft[removedPlayer]--;
+        delete frozenPieces[`${r},${c}`];
+        return;
+      }
+
+      if (challengeMode && isBlocked(nextR, nextC)) {
+        return;
+      }
+
+      if (board[nextR][nextC] !== 0) {
+        pushChain(nextR, nextC, dr, dc);
+      }
+
+      if (board[nextR][nextC] === 0) {
+        board[nextR][nextC] = board[r][c];
+        board[r][c] = 0;
+
+        if (frozenPieces[`${r},${c}`]) {
+          frozenPieces[`${nextR},${nextC}`] = frozenPieces[`${r},${c}`];
+          delete frozenPieces[`${r},${c}`];
+        }
+      }
+    }
+
+    function isInside(r, c) {
+      return r >= 0 && r < boardSize && c >= 0 && c < boardSize;
+    }
+
+    function checkWin(player) {
+      const needed = 4;
+
+      for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+          if (
+            checkDirection(r, c, 0, 1, player, needed) ||
+            checkDirection(r, c, 1, 0, player, needed) ||
+            checkDirection(r, c, 1, 1, player, needed) ||
+            checkDirection(r, c, 1, -1, player, needed)
+          ) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function checkDirection(r, c, dr, dc, player, needed) {
+      for (let i = 0; i < needed; i++) {
+        const nr = r + i * dr;
+        const nc = c + i * dc;
+        if (!isInside(nr, nc)) return false;
+        if (board[nr][nc] !== player) return false;
+      }
+      return true;
+    }
+
+    // AI SYSTEM (Scoring Based)
+    function aiMove() {
+      if (!aiMode || gameOver || currentPlayer !== 2) return;
+
+      const phase = getPhase();
+      let bestMove = null;
+      let bestScore = -999999;
+
+      const possibleMoves = getAllPossibleMoves(2, phase);
+
+      for (let move of possibleMoves) {
+        const score = simulateAndScore(move, 2, phase);
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = move;
+        }
+      }
+
+      if (bestMove) {
+        if (phase === "Movement Phase") {
+          selectedPiece = { r: bestMove.fromR, c: bestMove.fromC };
+        }
+        makeMove(bestMove.toR, bestMove.toC);
+      }
+    }
+
+    function getAllPossibleMoves(player, phase) {
+      let moves = [];
+
+      if (phase === "Placement Phase") {
+        for (let r = 0; r < boardSize; r++) {
+          for (let c = 0; c < boardSize; c++) {
+            if (board[r][c] === 0 && !(challengeMode && isBlocked(r, c))) {
+              moves.push({ toR: r, toC: c });
+            }
+          }
+        }
+      } else {
+        for (let r = 0; r < boardSize; r++) {
+          for (let c = 0; c < boardSize; c++) {
+            if (board[r][c] === player) {
+              if (frozenPieces[`${r},${c}`] && frozenPieces[`${r},${c}`] > 0) continue;
+
+              for (let tr = 0; tr < boardSize; tr++) {
+                for (let tc = 0; tc < boardSize; tc++) {
+                  if (board[tr][tc] === 0 && !(challengeMode && isBlocked(tr, tc))) {
+                    moves.push({ fromR: r, fromC: c, toR: tr, toC: tc });
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return moves;
+    }
+
+    function deepCopyBoard(b) {
+      return b.map(row => row.slice());
+    }
+
+    function simulateAndScore(move, player, phase) {
+      let tempBoard = deepCopyBoard(board);
+      let tempPiecesLeft = { ...piecesLeft };
+
+      function tempApplyPush(r, c) {
+        const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+        for (let [dr, dc] of dirs) {
+          let nr = r + dr, nc = c + dc;
+          if (nr>=0 && nr<boardSize && nc>=0 && nc<boardSize && tempBoard[nr][nc] !== 0) {
+            tempPushChain(nr, nc, dr, dc);
+          }
+        }
+      }
+
+      function tempPushChain(r, c, dr, dc) {
+        const nextR = r + dr;
+        const nextC = c + dc;
+
+        if (!(nextR>=0 && nextR<boardSize && nextC>=0 && nextC<boardSize)) {
+          let removed = tempBoard[r][c];
+          tempBoard[r][c] = 0;
+          tempPiecesLeft[removed]--;
+          return;
+        }
+
+        if (challengeMode && isBlocked(nextR, nextC)) return;
+
+        if (tempBoard[nextR][nextC] !== 0) {
+          tempPushChain(nextR, nextC, dr, dc);
+        }
+
+        if (tempBoard[nextR][nextC] === 0) {
+          tempBoard[nextR][nextC] = tempBoard[r][c];
+          tempBoard[r][c] = 0;
+        }
+      }
+
+      // Apply move
+      if (phase === "Placement Phase") {
+        tempBoard[move.toR][move.toC] = player;
+        tempApplyPush(move.toR, move.toC);
+      } else {
+        tempBoard[move.toR][move.toC] = player;
+        tempBoard[move.fromR][move.fromC] = 0;
+        tempApplyPush(move.toR, move.toC);
+      }
+
+      // Scoring
+      let score = 0;
+
+      // If AI wins
+      if (tempPiecesLeft[1] <= 0) score += 10000;
+      if (tempCheckWin(tempBoard, player)) score += 9000;
+
+      // If AI removes opponent piece
+      if (tempPiecesLeft[1] < piecesLeft[1]) score += 700;
+
+      // Avoid giving opponent win
+      if (tempCheckWin(tempBoard, 1)) score -= 2000;
+
+      // Center control
+      if (move.toR >= 2 && move.toR <= 3 && move.toC >= 2 && move.toC <= 3) score += 120;
+
+      // Edge pressure (good for pushing)
+      if (move.toR === 0 || move.toR === 5 || move.toC === 0 || move.toC === 5) score += 70;
+
+      return score;
+    }
+
+    function tempCheckWin(b, player) {
+      const needed = 4;
+      for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+          if (
+            tempCheckDirection(b, r, c, 0, 1, player, needed) ||
+            tempCheckDirection(b, r, c, 1, 0, player, needed) ||
+            tempCheckDirection(b, r, c, 1, 1, player, needed) ||
+            tempCheckDirection(b, r, c, 1, -1, player, needed)
+          ) return true;
+        }
+      }
+      return false;
+    }
+
+    function tempCheckDirection(b, r, c, dr, dc, player, needed) {
+      for (let i = 0; i < needed; i++) {
+        let nr = r + i * dr;
+        let nc = c + i * dc;
+        if (!(nr>=0 && nr<boardSize && nc>=0 && nc<boardSize)) return false;
+        if (b[nr][nc] !== player) return false;
+      }
+      return true;
+    }
+
+    // TIMER
+    function startTimer() {
+      stopTimer();
+      timerSeconds = 300;
+      updateTimerUI();
+
+      timerInterval = setInterval(() => {
+        if (!gameStarted || gameOver) return;
+
+        timerSeconds--;
+        updateTimerUI();
+
+        if (timerSeconds <= 0) {
+          statusText.textContent = "🤝 DRAW! Time Over.";
+          gameOver = true;
+          stopTimer();
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function updateTimerUI() {
+      let mins = Math.floor(timerSeconds / 60);
+      let secs = timerSeconds % 60;
+      mins = mins < 10 ? "0" + mins : mins;
+      secs = secs < 10 ? "0" + secs : secs;
+      timerText.textContent = `${mins}:${secs}`;
+    }
+
+    // Buttons
+    document.getElementById("startBtn").addEventListener("click", () => {
+      if (gameStarted) return;
+
+      gameStarted = true;
+      gameOver = false;
+      currentPlayer = 1;
+      statusText.textContent = "Game Running...";
+      selectedPiece = null;
+
+      startTimer();
+      updateUI();
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", () => {
+      gameStarted = false;
+      gameOver = false;
+      currentPlayer = 1;
+
+      placedPieces = { 1: 0, 2: 0 };
+      piecesLeft = { 1: maxPieces, 2: maxPieces };
+
+      selectedPiece = null;
+
+      stopTimer();
+      timerSeconds = 300;
+      updateTimerUI();
+
+      statusText.textContent = "Click START to begin";
+      initBoard();
+      updateUI();
+    });
+
+    document.getElementById("modeBtn").addEventListener("click", () => {
+      if (gameStarted) {
+        alert("You can only change Challenge mode before starting the game!");
+        return;
+      }
+      challengeMode = !challengeMode;
+      initBoard();
+      updateUI();
+    });
+
+    document.getElementById("aiBtn").addEventListener("click", () => {
+      if (gameStarted) {
+        alert("You can only enable AI mode before starting!");
+        return;
+      }
+      aiMode = !aiMode;
+      updateUI();
+    });
+
+    // Rules Modal
+    const rulesModal = document.getElementById("rulesModal");
+    document.getElementById("rulesBtn").addEventListener("click", () => {
+      rulesModal.style.display = "flex";
+    });
+
+    document.getElementById("closeRules").addEventListener("click", () => {
+      rulesModal.style.display = "none";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === rulesModal) rulesModal.style.display = "none";
+    });
+
+    // Init
+    initBoard();
+    renderBoard();
+    updateTimerUI();
+    updateUI();
+    const settingsIcon = document.getElementById("settingsIcon");
+const settingsPanel = document.getElementById("settingsPanel");
+
+settingsIcon.addEventListener("click", () => {
+  settingsPanel.style.display = settingsPanel.style.display === "flex" ? "none" : "flex";
+});
+
+window.addEventListener("click", (e) => {
+  if (!settingsPanel.contains(e.target) && e.target !== settingsIcon) {
+    settingsPanel.style.display = "none";
+  }
+});
+
+// Options
+const bgStyle = document.getElementById("bgStyle");
+const bgSpeed = document.getElementById("bgSpeed");
+const titleAnim = document.getElementById("titleAnim");
+const titleColor = document.getElementById("titleColor");
+
+const animatedTitle = document.querySelector(".animated-title");
+const bodyEl = document.body;
+
+// Background gradients
+const gradients = {
+  gradient1: "linear-gradient(270deg, #0f0c29, #302b63, #24243e)", // Black-Purple (default)
+  gradient2: "linear-gradient(270deg, #1a1a2e, #162447, #1f4068)",   // Dark Blue-Purple
+  gradient3: "linear-gradient(270deg, #0d0d0d, #4b0082, #6a0dad)",   // Black-Violet
+  gradient4: "linear-gradient(270deg, #050505, #2e003e, #6b00b3)"    // Deep Black-Purple
+};
+
+
+bgStyle.addEventListener("change", () => {
+  bodyEl.style.background = gradients[bgStyle.value];
+});
+
+
+// Animation speed
+bgSpeed.addEventListener("change", () => {
+  let speed = bgSpeed.value === "slow" ? "40s" : bgSpeed.value === "fast" ? "10s" : "20s";
+  bodyEl.style.animationDuration = speed;
+});
+
+// Title animation
+titleAnim.addEventListener("change", () => {
+  animatedTitle.className = "animated-title " + titleAnim.value;
+});
+
+// Title color
+titleColor.addEventListener("change", () => {
+  animatedTitle.style.color = titleColor.value;
+});
+
+  </script>
+
+</body>
+</html>
+
+
+
